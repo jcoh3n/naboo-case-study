@@ -4,27 +4,30 @@ Code review: have a look through the existing codebase, highlight good practices
 “Debug” mode: display the creation date of activities on the cards, but only if the logged-in user is an admin.
 
 Voici le récapitulatif complet de tout ce qu'il faut faire selon les demandes du sujet :
+
 🎯 3 Objectifs Principaux
 
-Code Review → Identifier et corriger les problèmes existants
-Système de Favoris → Permettre d'ajouter, voir et réorganiser les favoris
-Mode Debug Admin → Afficher les dates de création pour les admins
+- [x] Code Review → Identifier et corriger les problèmes existants
+- [ ] Système de Favoris → Permettre d'ajouter, voir et réorganiser les favoris
+- [ ] Mode Debug Admin → Afficher les dates de création pour les admins
+
+
 
 🚨 CORRECTIONS CRITIQUES (À faire en PREMIER)
-1. Bug Authentification JWT (BLOQUANT)
+- [x] Bug Authentification JWT (BLOQUANT)
+	- Le frontend utilise localStorage mais Apollo Client cherche des cookies
+	- Impact : L'authentification ne fonctionne probablement pas
 
-Le frontend utilise localStorage mais Apollo Client cherche des cookies
-Impact : L'authentification ne fonctionne probablement pas
+- [x] Schéma User Incomplet
+	- Champs debugModeEnabled et favoriteActivities manquants
+	- Impact : Erreurs runtime quand le code essaie d'utiliser ces champs
 
-2. Schéma User Incomplet
+- [x] Types TypeScript Incohérents
+	- Interface ContextWithJWTPayload incomplète
+	- Impact : Erreurs de compilation TypeScript
 
-Champs debugModeEnabled et favoriteActivities manquants
-Impact : Erreurs runtime quand le code essaie d'utiliser ces champs
-
-3. Types TypeScript Incohérents
-
-Interface ContextWithJWTPayload incomplète
-Impact : Erreurs de compilation TypeScript
+- [x] Configuration des variables d'environnement pour les tests
+	- Les variables JWT et MongoDB pour les tests sont maintenant chargées via le fichier `.env.test` (et non plus codées en dur dans le module de test). Pensez à créer/modifier ce fichier pour vos environnements de test.
 
 🎯 NOUVELLES FONCTIONNALITÉS À IMPLÉMENTER
 Système de Favoris Complet

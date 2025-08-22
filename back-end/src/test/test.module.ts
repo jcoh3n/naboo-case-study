@@ -22,7 +22,13 @@ export const closeInMongodConnection = async () => {
 };
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), rootMongooseTestModule()],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env.test',
+    }),
+    rootMongooseTestModule(),
+  ],
   exports: [ConfigModule, MongooseModule],
 })
 export class TestModule {}

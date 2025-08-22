@@ -52,6 +52,9 @@ export class ActivityResolver {
   async getActivitiesByUser(
     @Context() context: ContextWithJWTPayload,
   ): Promise<Activity[]> {
+    if (!context.jwtPayload) {
+      throw new Error('User not authenticated');
+    }
     return this.activityService.findByUser(context.jwtPayload.id);
   }
 
@@ -81,6 +84,9 @@ export class ActivityResolver {
     @Context() context: ContextWithJWTPayload,
     @Args('createActivityInput') createActivity: CreateActivityInput,
   ): Promise<Activity> {
+    if (!context.jwtPayload) {
+      throw new Error('User not authenticated');
+    }
     return this.activityService.create(context.jwtPayload.id, createActivity);
   }
 }
