@@ -31,10 +31,12 @@ export class User extends Document {
   @Prop()
   token?: string;
 
+  // Added for admin debug mode feature - shows creation dates when enabled
   @Field({ nullable: true })
   @Prop({ default: false })
   debugModeEnabled?: boolean;
 
+  // Added for favorites feature - stores references to user's favorite activities
   @Field(() => [Activity], { nullable: true })
   @Prop({ type: [{ type: 'ObjectId', ref: 'Activity' }], default: [] })
   favoriteActivities?: Activity[];

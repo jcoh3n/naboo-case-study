@@ -52,6 +52,8 @@ export class ActivityResolver {
   async getActivitiesByUser(
     @Context() context: ContextWithJWTPayload,
   ): Promise<Activity[]> {
+    // Check if user is authenticated before accessing protected resources
+    // jwtPayload can be null if no valid JWT token is provided
     if (!context.jwtPayload) {
       throw new Error('User not authenticated');
     }
@@ -84,6 +86,8 @@ export class ActivityResolver {
     @Context() context: ContextWithJWTPayload,
     @Args('createActivityInput') createActivity: CreateActivityInput,
   ): Promise<Activity> {
+    // Check if user is authenticated before accessing protected resources
+    // jwtPayload can be null if no valid JWT token is provided
     if (!context.jwtPayload) {
       throw new Error('User not authenticated');
     }

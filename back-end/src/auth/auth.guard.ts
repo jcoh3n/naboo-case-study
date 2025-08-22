@@ -12,6 +12,7 @@ export class AuthGuard implements CanActivate {
     const gqlContext = GqlExecutionContext.create(context);
     const ctx = gqlContext.getContext();
 
+    // jwtPayload can be null if no valid JWT token is provided
     if (!ctx.jwtPayload) throw new UnauthorizedException();
 
     return true;
