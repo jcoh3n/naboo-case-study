@@ -2,9 +2,11 @@ import { PageTitle } from "@/components";
 import { graphqlClient } from "@/graphql/apollo";
 import { withAuth } from "@/hocs";
 import { useAuth } from "@/hooks";
-import { Avatar, Flex, Text } from "@mantine/core";
+import { Avatar, Flex, Text, Stack, Divider, Card, Group, Badge, Box } from "@mantine/core";
+import { IconMail, IconUser, IconHeart } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
+import { FavoritesList } from "@/components/FavoritesList";
 
 interface ProfileProps {
   favoriteActivities: {
@@ -22,17 +24,53 @@ const Profile = (props: ProfileProps) => {
         <title>Mon profil | CDTR</title>
       </Head>
       <PageTitle title="Mon profil" />
-      <Flex align="center" gap="md">
-        <Avatar color="cyan" radius="xl" size="lg">
-          {user?.firstName[0]}
-          {user?.lastName[0]}
-        </Avatar>
-        <Flex direction="column">
-          <Text>{user?.email}</Text>
-          <Text>{user?.firstName}</Text>
-          <Text>{user?.lastName}</Text>
-        </Flex>
-      </Flex>
+      <Stack spacing="xl">
+        {/* Section Informations utilisateur */}
+        <Card withBorder p="xl" radius="lg" shadow="sm">
+          <Group position="apart" align="flex-start">
+            <Group align="center" spacing="lg">
+              <Avatar 
+                color="cyan" 
+                radius="xl" 
+                size={80}
+                sx={{
+                  border: '4px solid white',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                }}
+              >
+                {user?.firstName[0]}
+                {user?.lastName[0]}
+              </Avatar>
+              <Box>
+                <Text size="xl" weight={700} mb="xs">
+                  {user?.firstName} {user?.lastName}
+                </Text>
+                <Group spacing="md">
+                  <Badge 
+                    leftSection={<IconUser size={14} />}
+                    variant="light" 
+                    color="blue"
+                    size="sm"
+                  >
+                    Utilisateur
+                  </Badge>
+                  <Badge 
+                    leftSection={<IconMail size={14} />}
+                    variant="light" 
+                    color="green"
+                    size="sm"
+                  >
+                    {user?.email}
+                  </Badge>
+                </Group>
+              </Box>
+            </Group>
+          </Group>
+        </Card>
+        
+        {/* Section Favoris */}
+        <FavoritesList />
+      </Stack>
     </>
   );
 };

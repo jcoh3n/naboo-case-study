@@ -1,11 +1,13 @@
-import { Topbar } from "@/components";
-import { AuthProvider, SnackbarProvider } from "@/contexts";
-import { routes } from "@/routes";
-import { graphqlClient } from "@/graphql/apollo";
-import { mantineTheme } from "@/utils";
-import { ApolloProvider } from "@apollo/client";
-import { Container, MantineProvider } from "@mantine/core";
-import type { AppProps } from "next/app";
+import { AppProps } from 'next/app';
+import { ApolloProvider } from '@apollo/client';
+import { MantineProvider, Container } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
+import { graphqlClient } from '../graphql/apollo';
+import { AuthProvider, SnackbarProvider } from '../contexts';
+import { Topbar } from '../components';
+import { routes } from '../routes';
+import { mantineTheme } from '../utils';
+import { FavoritesCacheProvider } from '../components/FavoritesCacheProvider';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -13,13 +15,16 @@ export default function App({ Component, pageProps }: AppProps) {
       <SnackbarProvider>
         <ApolloProvider client={graphqlClient}>
           <AuthProvider>
-            <Topbar routes={routes} />
-            <Container>
-              <Component {...pageProps} />
-            </Container>
+            <FavoritesCacheProvider>
+              <Topbar routes={routes} />
+              <Container>
+                <Component {...pageProps} />
+              </Container>
+            </FavoritesCacheProvider>
           </AuthProvider>
         </ApolloProvider>
       </SnackbarProvider>
+      <Notifications />
     </MantineProvider>
   );
 }
