@@ -2,8 +2,7 @@ import { PageTitle } from "@/components";
 import { graphqlClient } from "@/graphql/apollo";
 import { withAuth } from "@/hocs";
 import { useAuth } from "@/hooks";
-import { Avatar, Flex, Text, Stack, Divider, Card, Group, Badge, Box } from "@mantine/core";
-import { IconMail, IconUser, IconHeart } from "@tabler/icons-react";
+import { Avatar, Text, Stack, Card, Group, Box } from "@mantine/core";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { FavoritesList } from "@/components/FavoritesList";
@@ -24,52 +23,30 @@ const Profile = (props: ProfileProps) => {
         <title>Mon profil | CDTR</title>
       </Head>
       <PageTitle title="Mon profil" />
-      <Stack spacing="xl">
+      <Stack spacing="lg">
         {/* Section Informations utilisateur */}
-        <Card withBorder p="xl" radius="lg" shadow="sm">
-          <Group position="apart" align="flex-start">
-            <Group align="center" spacing="lg">
-              <Avatar 
-                color="cyan" 
-                radius="xl" 
-                size={80}
-                sx={{
-                  border: '4px solid white',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                }}
-              >
-                {user?.firstName[0]}
-                {user?.lastName[0]}
-              </Avatar>
-              <Box>
-                <Text size="xl" weight={700} mb="xs">
-                  {user?.firstName} {user?.lastName}
-                </Text>
-                <Group spacing="md">
-                  <Badge 
-                    leftSection={<IconUser size={14} />}
-                    variant="light" 
-                    color="blue"
-                    size="sm"
-                  >
-                    Utilisateur
-                  </Badge>
-                  <Badge 
-                    leftSection={<IconMail size={14} />}
-                    variant="light" 
-                    color="green"
-                    size="sm"
-                  >
-                    {user?.email}
-                  </Badge>
-                </Group>
-              </Box>
-            </Group>
+        <Card withBorder p="lg" radius="md" shadow="xs">
+          <Group align="center" spacing="md">
+            <Avatar 
+              color="cyan" 
+              radius="xl" 
+              size={60}
+              sx={{
+                fontWeight: 600,
+              }}
+            >
+              {user?.firstName[0]}{user?.lastName[0]}
+            </Avatar>
+            <Box>
+              <Text size="lg" weight={600} mb={4}>
+                {user?.firstName} {user?.lastName}
+              </Text>
+              <Text size="sm" color="dimmed">
+                {user?.email}
+              </Text>
+            </Box>
           </Group>
         </Card>
-        
-        {/* Divider entre les sections */}
-        <Divider my="xl" />
         
         {/* Section Favoris */}
         <FavoritesList />

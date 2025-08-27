@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { Card, Text, Group, Stack, LoadingOverlay, Box, Badge, Image, Button, SimpleGrid, Center, Divider } from '@mantine/core';
-import { IconHeart, IconMapPin, IconCurrencyEuro, IconEye, IconHeartFilled, IconGripVertical, IconCheck } from '@tabler/icons-react';
+import { Card, Text, Group, Stack, LoadingOverlay, Box, Image, SimpleGrid, Badge } from '@mantine/core';
+import { IconHeart, IconMapPin, IconCurrencyEuro, IconHeartFilled, IconGripVertical } from '@tabler/icons-react';
 import { reorderFavoritesMutation } from '../graphql/favorites';
 import { useFavoritesCache } from './FavoritesCacheProvider';
-import { useSnackbar } from '../hooks/useSnackbar';
 import { FavoriteButton } from './FavoriteButton';
 import Link from 'next/link';
 import { useGlobalStyles } from '@/utils';
 import {
   DndContext,
   closestCenter,
+  closestCorners,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -20,7 +20,7 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
+  rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import {
   useSortable,
@@ -33,7 +33,7 @@ interface DraggableFavoriteCardProps {
   classes: any;
 }
 
-const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = ({ 
+const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = React.memo(({ 
   activity, 
   classes
 }) => {
@@ -61,8 +61,8 @@ const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = ({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.8 : 1,
+    transition: isDragging ? 'none' : transition || 'transform 200ms cubic-bezier(0.25, 0.1, 0.25, 1)',
+    opacity: isDragging ? 0.9 : 1,
     zIndex: isDragging ? 1000 : 1,
   };
 
@@ -88,14 +88,15 @@ const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = ({
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            transition: isDragging ? 'none' : 'all 0.2s ease',
+            transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             cursor: isDragging ? 'grabbing' : 'pointer',
             position: 'relative',
             border: isDragging ? '2px solid #ff5252' : '2px solid #ff6b6b',
             backgroundColor: isDragging ? 'rgba(255, 107, 107, 0.08)' : 'rgba(255, 107, 107, 0.02)',
-            boxShadow: isDragging ? '0 8px 25px rgba(255, 107, 107, 0.3)' : undefined,
+            boxShadow: isDragging ? '0 12px 35px rgba(255, 107, 107, 0.4)' : '0 2px 8px rgba(0, 0, 0, 0.1)',
+            transform: isDragging ? 'scale(1.02) rotate(2deg)' : 'scale(1)',
             '&:hover': !isDragging ? {
-              transform: 'translateY(-4px)',
+              transform: 'translateY(-4px) scale(1.01)',
               boxShadow: '0 12px 30px rgba(255, 107, 107, 0.2)',
               border: '2px solid #ff5252',
             } : {},
@@ -133,24 +134,26 @@ const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = ({
                 position: 'absolute',
                 top: 8,
                 left: 8,
-                backgroundColor: isDragging ? 'rgba(255, 107, 107, 0.9)' : 'rgba(0, 0, 0, 0.7)',
-                borderRadius: '6px',
-                padding: '8px',
+                backgroundColor: isDragging ? 'rgba(255, 107, 107, 0.95)' : 'rgba(0, 0, 0, 0.75)',
+                borderRadius: '8px',
+                padding: '10px',
                 cursor: 'grab',
                 color: 'white',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
-                backdropFilter: 'blur(4px)',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 107, 107, 0.8)',
-                  transform: 'scale(1.05)',
-                },
+                backdropFilter: 'blur(8px)',
+                boxShadow: isDragging ? '0 4px 12px rgba(255, 107, 107, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.2)',
+                '&:hover': !isDragging ? {
+                  backgroundColor: 'rgba(255, 107, 107, 0.85)',
+                  transform: 'scale(1.1)',
+                  boxShadow: '0 4px 16px rgba(255, 107, 107, 0.4)',
+                } : {},
                 '&:active': {
                   cursor: 'grabbing',
-                  transform: 'scale(0.95)',
+                  transform: isDragging ? 'scale(1.05)' : 'scale(0.95)',
                 },
               }}
               onClick={(e) => e.preventDefault()} // Empêche la navigation
@@ -206,22 +209,34 @@ const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = ({
         </Card>
     </div>
   );
-};
+});
+
+DraggableFavoriteCard.displayName = 'DraggableFavoriteCard';
 
 export const FavoritesList: React.FC = () => {
-  const { success, error: showError } = useSnackbar();
   const { favorites, isLoading, refetch } = useFavoritesCache();
   const { classes } = useGlobalStyles();
   const [localFavorites, setLocalFavorites] = useState(favorites);
-  const [isSaving, setIsSaving] = useState(false);
 
-  // Mettre à jour l'état local quand les favoris changent
+  // Mettre à jour l'état local quand les favoris changent (seulement si nécessaire)
+  const lastFavoriteIds = React.useRef<string>('');
+  
   React.useEffect(() => {
-    setLocalFavorites(favorites);
+    const favoriteIds = favorites.map(f => f.id).join(',');
+    
+    if (favoriteIds !== lastFavoriteIds.current && favorites.length > 0) {
+      console.log('Updating local favorites from server:', favoriteIds);
+      setLocalFavorites(favorites);
+      lastFavoriteIds.current = favoriteIds;
+    }
   }, [favorites]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Minimum 8px de mouvement avant d'activer le drag
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -229,16 +244,16 @@ export const FavoritesList: React.FC = () => {
 
   const [reorderFavorites] = useMutation(reorderFavoritesMutation, {
     onCompleted: () => {
-      setIsSaving(false);
-      success('Favoris réorganisés avec succès');
-      refetch();
+      // Pas de notification - action silencieuse
     },
     onError: (error) => {
-      setIsSaving(false);
-      showError(`Erreur: ${error.message}`);
-      // Restaurer l'ordre original en cas d'erreur
+      // Restaurer l'ordre original en cas d'erreur (notification d'erreur gardée pour debug)
+      console.error('Erreur réorganisation favoris:', error.message);
       setLocalFavorites(favorites);
     },
+    // Optimiser le cache pour éviter les re-renders inutiles
+    errorPolicy: 'all',
+    fetchPolicy: 'no-cache', // Évite les conflits de cache pendant la mutation
   });
 
   const handleDragStart = () => {
@@ -248,17 +263,23 @@ export const FavoritesList: React.FC = () => {
   const handleDragEnd = async (event: any) => {
     const { active, over } = event;
 
-    if (active.id !== over?.id) {
+    console.log('Drag end:', { active: active?.id, over: over?.id });
+
+    if (active.id !== over?.id && over) {
       const oldIndex = localFavorites.findIndex((item) => item.id === active.id);
       const newIndex = localFavorites.findIndex((item) => item.id === over.id);
       
-      const newOrder = arrayMove(localFavorites, oldIndex, newIndex);
-      setLocalFavorites(newOrder);
+      console.log('Indices:', { oldIndex, newIndex, totalItems: localFavorites.length });
       
-      // Envoyer la nouvelle ordre au serveur en arrière-plan
-      setIsSaving(true);
-      const activityIds = newOrder.map((activity) => activity.id);
-      reorderFavorites({ variables: { activityIds } });
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(localFavorites, oldIndex, newIndex);
+        console.log('New order:', newOrder.map(item => item.id));
+        setLocalFavorites(newOrder);
+        
+        // Envoyer la nouvelle ordre au serveur en arrière-plan
+        const activityIds = newOrder.map((activity) => activity.id);
+        reorderFavorites({ variables: { activityIds } });
+      }
     }
   };
 
@@ -278,9 +299,7 @@ export const FavoritesList: React.FC = () => {
           <Text size="xl" weight={700}>
             Mes Favoris
           </Text>
-          <Text size="sm" color="dimmed">
-            Aucun favori
-          </Text>
+          
         </Group>
         
         <Card withBorder p="xl" radius="lg" shadow="sm" ta="center">
@@ -311,6 +330,9 @@ export const FavoritesList: React.FC = () => {
     );
   }
 
+  const sortableItems = localFavorites.map((activity) => activity.id);
+  console.log('Sortable items:', sortableItems);
+
   return (
     <Box>
       {/* En-tête avec titre */}
@@ -318,33 +340,18 @@ export const FavoritesList: React.FC = () => {
         <Text size="xl" weight={700}>
           Mes Favoris
         </Text>
-        <Group spacing="xs">
-          <Text size="sm" color="dimmed">
-            {localFavorites.length} {localFavorites.length === 1 ? 'activité' : 'activités'}
-          </Text>
-          {localFavorites.length > 1 && !isSaving && (
-            <Badge variant="outline" color="gray" size="xs">
-              Glisser pour réorganiser
-            </Badge>
-          )}
-          {isSaving && (
-            <Badge variant="light" color="blue" size="xs" leftSection={<IconCheck size={12} />}>
-              Sauvegarde...
-            </Badge>
-          )}
-        </Group>
       </Group>
 
       {/* Contexte de drag & drop pour les favoris */}
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={localFavorites.map((activity) => activity.id)}
-          strategy={verticalListSortingStrategy}
+          items={sortableItems}
+          strategy={rectSortingStrategy}
         >
           <SimpleGrid 
             cols={3}
