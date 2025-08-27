@@ -4,7 +4,6 @@ import { ActionIcon, Tooltip } from '@mantine/core';
 import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
 import { addToFavoritesMutation, removeFromFavoritesMutation } from '../graphql/favorites';
 import { useFavoriteState } from '../hooks/useFavoriteState';
-import { useSnackbar } from '../hooks/useSnackbar';
 
 /**
  * Props du composant FavoriteButton
@@ -25,7 +24,6 @@ interface FavoriteButtonProps {
  * - Toggle favori avec feedback visuel instantané
  * - États de chargement avec spinner
  * - Animations hover et transitions fluides
- * - Notifications success/error automatiques
  * - Synchronisation avec le cache global
  */
 export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
@@ -33,30 +31,27 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   size = 'md',
   onFavoriteChange,
 }) => {
-  const { success, error: showError } = useSnackbar();
   const { isFavorite, isLoading: favoriteLoading, refetch } = useFavoriteState(activityId);
 
   // Mutation pour ajouter aux favoris avec gestion des callbacks
   const [addToFavorites, { loading: addingLoading }] = useMutation(addToFavoritesMutation, {
     onCompleted: () => {
-      success('Activité ajoutée aux favoris');
       refetch(); // Re-synchroniser le cache
       onFavoriteChange?.(true); // Notifier le parent si callback fourni
     },
     onError: (error) => {
-      showError(`Erreur: ${error.message}`);
+      console.error(`Erreur: ${error.message}`);
     },
   });
 
   // Mutation pour retirer des favoris avec gestion des callbacks
   const [removeFromFavorites, { loading: removingLoading }] = useMutation(removeFromFavoritesMutation, {
     onCompleted: () => {
-      success('Activité retirée des favoris');
       refetch(); // Re-synchroniser le cache
       onFavoriteChange?.(false); // Notifier le parent si callback fourni
     },
     onError: (error) => {
-      showError(`Erreur: ${error.message}`);
+      console.error(`Erreur: ${error.message}`);
     },
   });
 

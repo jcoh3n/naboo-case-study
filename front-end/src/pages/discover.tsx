@@ -43,8 +43,6 @@ export default function Discover({ activities }: DiscoverProps) {
           </Link>
         )}
       </Group>
-      {/* Debug Mode Toggle - only visible for admins */}
-      <DebugModeToggle />
       <Grid>
         {activities.length > 0 ? (
           activities.map((activity) => (
@@ -54,6 +52,8 @@ export default function Discover({ activities }: DiscoverProps) {
           <EmptyData />
         )}
       </Grid>
+      {/* Debug Mode Toggle - only visible for admins */}
+      <DebugModeToggle />
     </>
   );
 }

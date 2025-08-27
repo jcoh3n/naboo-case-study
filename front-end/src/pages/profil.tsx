@@ -46,13 +46,13 @@ const Profile = (props: ProfileProps) => {
               </Text>
             </Box>
           </Group>
-          {/* Debug Mode Toggle - only visible for admins */}
-          <DebugModeToggle />
         </Card>
         
         {/* Section Favoris */}
         <FavoritesList />
       </Stack>
+      {/* Debug Mode Toggle - only visible for admins */}
+      <DebugModeToggle />
     </>
   );
 };

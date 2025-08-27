@@ -45,8 +45,6 @@ const MyActivities = ({ activities }: MyActivitiesProps) => {
           </Link>
         )}
       </Group>
-      {/* Debug Mode Toggle - only visible for admins */}
-      <DebugModeToggle />
       <Grid>
         {activities.length > 0 ? (
           activities.map((activity) => (
@@ -56,6 +54,8 @@ const MyActivities = ({ activities }: MyActivitiesProps) => {
           <EmptyData />
         )}
       </Grid>
+      {/* Debug Mode Toggle - only visible for admins */}
+      <DebugModeToggle />
     </>
   );
 };

@@ -48,11 +48,9 @@ export default function ActivityDetails({ activity }: ActivityDetailsProps) {
   return (
     <>
       <Head>
-        <title>{activity.name} | CDTR</title>
+        <title>{activity.name ? `${activity.name} | CDTR` : 'Activité | CDTR'}</title>
       </Head>
       <PageTitle title={activity.name} prevPath={router.back} />
-      {/* Debug Mode Toggle - only visible for admins */}
-      {user?.role === "admin" && <DebugModeToggle />}
       <Grid>
         <Grid.Col span={7}>
           <Image
@@ -79,13 +77,26 @@ export default function ActivityDetails({ activity }: ActivityDetailsProps) {
             </Text>
             {/* Display createdAt only if user is admin and debug mode is enabled */}
             {user?.role === "admin" && user?.debugModeEnabled && activity.createdAt && (
-              <Text size="xs" color="dimmed">
+              <Text 
+                size="xs" 
+                color="dimmed"
+                sx={(theme) => ({
+                  fontStyle: 'italic',
+                  padding: theme.spacing.xs,
+                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[1],
+                  borderRadius: theme.radius.sm,
+                  border: `1px dashed ${theme.colorScheme === 'dark' ? theme.colors.dark[3] : theme.colors.gray[4]}`,
+                  display: 'inline-block',
+                })}
+              >
                 Created: {formatDate(activity.createdAt)}
               </Text>
             )}
           </Flex>
         </Grid.Col>
       </Grid>
+      {/* Debug Mode Toggle - only visible for admins */}
+      <DebugModeToggle />
     </>
   );
 }

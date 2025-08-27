@@ -46,7 +46,19 @@ export function ActivityListItem({ activity, showFavoriteButton = true, mb }: Ac
           >{`${activity.price}€/j`}</Text>
           {/* Display createdAt only if user is admin and debug mode is enabled */}
           {user?.role === "admin" && user?.debugModeEnabled && activity.createdAt && (
-            <Text size="xs" color="dimmed" mt="xs">
+            <Text 
+              size="xs" 
+              color="dimmed" 
+              mt="xs"
+              sx={(theme) => ({
+                fontStyle: 'italic',
+                padding: theme.spacing.xs,
+                backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[1],
+                borderRadius: theme.radius.sm,
+                border: `1px dashed ${theme.colorScheme === 'dark' ? theme.colors.dark[3] : theme.colors.gray[4]}`,
+                display: 'inline-block',
+              })}
+            >
               Created: {formatDate(activity.createdAt)}
             </Text>
           )}

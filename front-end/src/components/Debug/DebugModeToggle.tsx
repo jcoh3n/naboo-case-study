@@ -1,12 +1,10 @@
 import { useMutation } from "@apollo/client";
-import { Switch, Text, Group } from "@mantine/core";
-import { useSnackbar } from "@/hooks";
+import { Switch, Text, Group, Box } from "@mantine/core";
 import { useAuth } from "@/hooks";
 import ToggleDebugMode from "@/graphql/mutations/debug/toggleDebugMode";
 import { useEffect, useState } from "react";
 
 export function DebugModeToggle() {
-  const snackbar = useSnackbar();
   const { user, setUser } = useAuth();
   const [enabled, setEnabled] = useState(false);
 
@@ -26,10 +24,8 @@ export function DebugModeToggle() {
           debugModeEnabled: data.toggleDebugMode.debugModeEnabled,
         });
       }
-      snackbar.success("Debug mode updated successfully");
     },
     onError: (error) => {
-      snackbar.error("Failed to update debug mode");
       console.error(error);
     },
   });
@@ -55,12 +51,29 @@ export function DebugModeToggle() {
   }
 
   return (
-    <Group position="center" mt="md">
-      <Text>Debug Mode</Text>
-      <Switch
-        checked={enabled}
-        onChange={(event) => handleChange(event.currentTarget.checked)}
-      />
-    </Group>
+    <Box 
+      sx={(theme) => ({
+        position: 'fixed',
+        bottom: theme.spacing.md,
+        right: theme.spacing.md,
+        zIndex: 1000,
+        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
+        padding: theme.spacing.xs,
+        borderRadius: theme.radius.md,
+        boxShadow: theme.shadows.sm,
+        border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}`,
+      })}
+    >
+      <Group spacing="xs">
+        <Text size="xs" color="dimmed">Debug</Text>
+        <Switch
+          checked={enabled}
+          onChange={(event) => handleChange(event.currentTarget.checked)}
+          size="md"
+          onLabel="ON"
+          offLabel="OFF"
+        />
+      </Group>
+    </Box>
   );
 }
