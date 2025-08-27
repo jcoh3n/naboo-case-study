@@ -4,7 +4,8 @@ import { getFavoritesQuery } from '../graphql/favorites';
 import { useAuth } from '../hooks/useAuth';
 
 interface FavoritesCacheContextType {
-  favorites: string[];
+  favorites: any[];
+  favoriteIds: string[];
   isLoading: boolean;
   refetch: () => void;
 }
@@ -23,10 +24,12 @@ export const FavoritesCacheProvider: React.FC<FavoritesCacheProviderProps> = ({ 
     fetchPolicy: 'cache-and-network',
   });
 
-  const favorites = data?.getFavorites?.map((activity: any) => activity.id) || [];
+  const favorites = data?.getFavorites || [];
+  const favoriteIds = favorites.map((activity: any) => activity.id);
 
   const value: FavoritesCacheContextType = {
     favorites,
+    favoriteIds,
     isLoading: loading,
     refetch,
   };

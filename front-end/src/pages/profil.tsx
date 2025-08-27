@@ -68,6 +68,9 @@ const Profile = (props: ProfileProps) => {
           </Group>
         </Card>
         
+        {/* Divider entre les sections */}
+        <Divider my="xl" />
+        
         {/* Section Favoris */}
         <FavoritesList />
       </Stack>

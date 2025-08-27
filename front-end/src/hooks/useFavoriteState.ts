@@ -8,12 +8,12 @@ interface UseFavoriteStateReturn {
 }
 
 export const useFavoriteState = (activityId: string): UseFavoriteStateReturn => {
-  const { favorites, isLoading, refetch } = useFavoritesCache();
+  const { favoriteIds, isLoading, refetch } = useFavoritesCache();
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    setIsFavorite(favorites.includes(activityId));
-  }, [favorites, activityId]);
+    setIsFavorite(favoriteIds.includes(activityId));
+  }, [favoriteIds, activityId]);
 
   return {
     isFavorite,
