@@ -1,4 +1,8 @@
-import { City } from "@/utils";
+interface City {
+  nom: string;
+  departement?: string;
+}
+
 import { AxiosResponse } from "axios";
 import { axiosInstance } from "./axios";
 

@@ -2,9 +2,10 @@ import { PageTitle } from "@/components";
 import { graphqlClient } from "@/graphql/apollo";
 import { withAuth } from "@/hocs";
 import { useAuth } from "@/hooks";
-import { Avatar, Flex, Text } from "@mantine/core";
+import { Avatar, Text, Stack, Card, Group, Box } from "@mantine/core";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
+import { FavoritesList } from "@/components/FavoritesList";
 
 interface ProfileProps {
   favoriteActivities: {
@@ -22,17 +23,34 @@ const Profile = (props: ProfileProps) => {
         <title>Mon profil | CDTR</title>
       </Head>
       <PageTitle title="Mon profil" />
-      <Flex align="center" gap="md">
-        <Avatar color="cyan" radius="xl" size="lg">
-          {user?.firstName[0]}
-          {user?.lastName[0]}
-        </Avatar>
-        <Flex direction="column">
-          <Text>{user?.email}</Text>
-          <Text>{user?.firstName}</Text>
-          <Text>{user?.lastName}</Text>
-        </Flex>
-      </Flex>
+      <Stack spacing="lg">
+        {/* Section Informations utilisateur */}
+        <Card withBorder p="lg" radius="md" shadow="xs">
+          <Group align="center" spacing="md">
+            <Avatar 
+              color="cyan" 
+              radius="xl" 
+              size={60}
+              sx={{
+                fontWeight: 600,
+              }}
+            >
+              {user?.firstName[0]}{user?.lastName[0]}
+            </Avatar>
+            <Box>
+              <Text size="lg" weight={600} mb={4}>
+                {user?.firstName} {user?.lastName}
+              </Text>
+              <Text size="sm" color="dimmed">
+                {user?.email}
+              </Text>
+            </Box>
+          </Group>
+        </Card>
+        
+        {/* Section Favoris */}
+        <FavoritesList />
+      </Stack>
     </>
   );
 };

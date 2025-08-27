@@ -2,6 +2,7 @@ import { ActivityFragment } from "@/graphql/generated/types";
 import { useGlobalStyles } from "@/utils";
 import { Badge, Button, Card, Grid, Group, Image, Text } from "@mantine/core";
 import Link from "next/link";
+import { FavoriteButton } from "./FavoriteButton";
 
 interface ActivityProps {
   activity: ActivityFragment;
@@ -11,8 +12,30 @@ export function Activity({ activity }: ActivityProps) {
   const { classes } = useGlobalStyles();
 
   return (
-    <Grid.Col span={4}>
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
+    <Grid.Col 
+      span={4}
+      sx={{
+        '@media (max-width: 768px)': {
+          marginBottom: '1rem',
+        }
+      }}
+    >
+      <Card 
+        shadow="sm" 
+        padding="lg"
+        radius="md" 
+        withBorder
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+          },
+        }}
+      >
         <Card.Section>
           <Image
             src="https://dummyimage.com/480x4:3"
@@ -40,11 +63,29 @@ export function Activity({ activity }: ActivityProps) {
           {activity.description}
         </Text>
 
-        <Link href={`/activities/${activity.id}`} className={classes.link}>
-          <Button variant="light" color="blue" fullWidth mt="md" radius="md">
-            Voir plus
-          </Button>
-        </Link>
+        <Group position="apart" mt="md" align="center" sx={{ marginTop: 'auto' }}>
+          <FavoriteButton
+            activityId={activity.id}
+            size="md"
+          />
+          <Link href={`/activities/${activity.id}`} className={classes.link} style={{ flex: 1 }}>
+            <Button 
+              variant="light" 
+              color="blue" 
+              radius="md"
+              size="sm"
+              fullWidth
+              sx={{
+                '@media (max-width: 768px)': {
+                  fontSize: '0.875rem',
+                  padding: '0.5rem 1rem',
+                }
+              }}
+            >
+              Voir plus
+            </Button>
+          </Link>
+        </Group>
       </Card>
     </Grid.Col>
   );
