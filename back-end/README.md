@@ -58,6 +58,26 @@ $ yarn run test:e2e
 $ yarn run test:cov
 ```
 
+## Environment Configuration
+
+Before starting the app, you need to set up environment variables.
+
+1. Copy the `.env.dist` file to `.env`:
+   ```bash
+   cp .env.dist .env
+   ```
+
+2. Edit the `.env` file and fill in the required values, such as:
+   ```env
+   MONGODB_URI=mongodb://localhost:27017/your_database_name
+   JWT_SECRET=your_jwt_secret_key
+   ```
+
+3. Restart the backend server:
+   ```bash
+   npm run start:dev
+   ```
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
