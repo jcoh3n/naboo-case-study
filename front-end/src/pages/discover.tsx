@@ -1,4 +1,4 @@
-import { Activity, EmptyData, PageTitle } from "@/components";
+import { Activity, EmptyData, PageTitle, DebugModeToggle } from "@/components";
 import { graphqlClient } from "@/graphql/apollo";
 import {
   GetActivitiesQuery,
@@ -43,6 +43,8 @@ export default function Discover({ activities }: DiscoverProps) {
           </Link>
         )}
       </Group>
+      {/* Debug Mode Toggle - only visible for admins */}
+      <DebugModeToggle />
       <Grid>
         {activities.length > 0 ? (
           activities.map((activity) => (

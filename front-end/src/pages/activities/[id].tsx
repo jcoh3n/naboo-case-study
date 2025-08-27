@@ -1,4 +1,4 @@
-import { PageTitle } from "@/components";
+import { PageTitle, DebugModeToggle } from "@/components";
 import { graphqlClient } from "@/graphql/apollo";
 import {
   GetActivityQuery,
@@ -9,6 +9,7 @@ import { Badge, Flex, Grid, Group, Image, Text } from "@mantine/core";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useAuth } from "@/hooks";
 
 interface ActivityDetailsProps {
   activity: GetActivityQuery["getActivity"];
@@ -31,6 +32,18 @@ export const getServerSideProps: GetServerSideProps<
 
 export default function ActivityDetails({ activity }: ActivityDetailsProps) {
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Format the date for display
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <>
@@ -38,6 +51,8 @@ export default function ActivityDetails({ activity }: ActivityDetailsProps) {
         <title>{activity.name} | CDTR</title>
       </Head>
       <PageTitle title={activity.name} prevPath={router.back} />
+      {/* Debug Mode Toggle - only visible for admins */}
+      {user?.role === "admin" && <DebugModeToggle />}
       <Grid>
         <Grid.Col span={7}>
           <Image
@@ -62,6 +77,12 @@ export default function ActivityDetails({ activity }: ActivityDetailsProps) {
             <Text size="sm" color="dimmed">
               Ajouté par {activity.owner.firstName} {activity.owner.lastName}
             </Text>
+            {/* Display createdAt only if user is admin and debug mode is enabled */}
+            {user?.role === "admin" && user?.debugModeEnabled && activity.createdAt && (
+              <Text size="xs" color="dimmed">
+                Created: {formatDate(activity.createdAt)}
+              </Text>
+            )}
           </Flex>
         </Grid.Col>
       </Grid>

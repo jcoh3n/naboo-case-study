@@ -1,4 +1,4 @@
-import { PageTitle } from "@/components";
+import { PageTitle, DebugModeToggle } from "@/components";
 import { graphqlClient } from "@/graphql/apollo";
 import { withAuth } from "@/hocs";
 import { useAuth } from "@/hooks";
@@ -46,6 +46,8 @@ const Profile = (props: ProfileProps) => {
               </Text>
             </Box>
           </Group>
+          {/* Debug Mode Toggle - only visible for admins */}
+          <DebugModeToggle />
         </Card>
         
         {/* Section Favoris */}
