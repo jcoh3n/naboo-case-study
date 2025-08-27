@@ -10,3 +10,4 @@ export * from "./Form";
 export * from "./PageTitle";
 export * from "./SortableItem";
 export * from "./Topbar";
+export * from "./Debug/DebugModeToggle";

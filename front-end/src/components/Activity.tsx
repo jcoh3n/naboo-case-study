@@ -3,6 +3,7 @@ import { useGlobalStyles } from "@/utils";
 import { Badge, Button, Card, Grid, Group, Image, Text } from "@mantine/core";
 import Link from "next/link";
 import { FavoriteButton } from "./FavoriteButton";
+import { useAuth } from "@/hooks";
 
 interface ActivityProps {
   activity: ActivityFragment;
@@ -10,6 +11,18 @@ interface ActivityProps {
 
 export function Activity({ activity }: ActivityProps) {
   const { classes } = useGlobalStyles();
+  const { user } = useAuth();
+
+  // Format the date for display
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <Grid.Col 
@@ -62,6 +75,13 @@ export function Activity({ activity }: ActivityProps) {
         <Text size="sm" color="dimmed" className={classes.ellipsis}>
           {activity.description}
         </Text>
+
+        {/* Display createdAt only if user is admin and debug mode is enabled */}
+        {user?.role === "admin" && user?.debugModeEnabled && activity.createdAt && (
+          <Text size="xs" color="dimmed" mt="xs">
+            Created: {formatDate(activity.createdAt)}
+          </Text>
+        )}
 
         <Group position="apart" mt="md" align="center" sx={{ marginTop: 'auto' }}>
           <FavoriteButton

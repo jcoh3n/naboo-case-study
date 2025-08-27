@@ -25,6 +25,7 @@ interface AuthContextType {
   handleSignin: (input: SignInInput) => Promise<void>;
   handleSignup: (input: SignUpInput) => Promise<void>;
   handleLogout: () => Promise<void>;
+  setUser: (user: GetUserQuery["getMe"] | null) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -33,6 +34,7 @@ export const AuthContext = createContext<AuthContextType>({
   handleSignin: () => Promise.resolve(),
   handleSignup: () => Promise.resolve(),
   handleLogout: () => Promise.resolve(),
+  setUser: () => {},
 });
 
 interface AuthProviderProps {
@@ -105,7 +107,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, handleSignin, handleSignup, handleLogout }}
+      value={{ user, isLoading, handleSignin, handleSignup, handleLogout, setUser }}
     >
       {children}
     </AuthContext.Provider>

@@ -3,6 +3,7 @@ import { useGlobalStyles } from "@/utils";
 import { Box, Button, Flex, Image, Text } from "@mantine/core";
 import Link from "next/link";
 import { FavoriteButton } from "./FavoriteButton";
+import { useAuth } from "@/hooks";
 
 interface ActivityListItemProps {
   activity: ActivityFragment;
@@ -12,6 +13,18 @@ interface ActivityListItemProps {
 
 export function ActivityListItem({ activity, showFavoriteButton = true, mb }: ActivityListItemProps) {
   const { classes } = useGlobalStyles();
+  const { user } = useAuth();
+
+  // Format the date for display
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <Flex align="center" justify="space-between" mb={mb}>
@@ -31,6 +44,12 @@ export function ActivityListItem({ activity, showFavoriteButton = true, mb }: Ac
             weight="bold"
             className={classes.ellipsis}
           >{`${activity.price}€/j`}</Text>
+          {/* Display createdAt only if user is admin and debug mode is enabled */}
+          {user?.role === "admin" && user?.debugModeEnabled && activity.createdAt && (
+            <Text size="xs" color="dimmed" mt="xs">
+              Created: {formatDate(activity.createdAt)}
+            </Text>
+          )}
         </Box>
       </Flex>
       <Flex gap="sm" align="center">
