@@ -31,11 +31,15 @@ import { CSS } from '@dnd-kit/utilities';
 interface DraggableFavoriteCardProps {
   activity: any;
   classes: any;
+  isRemoving?: boolean;
+  onRemoveStart?: (id: string) => void;
 }
 
 const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = React.memo(({ 
   activity, 
-  classes
+  classes,
+  isRemoving = false,
+  onRemoveStart
 }) => {
   const [isDragMode, setIsDragMode] = useState(false);
   const {
@@ -59,11 +63,14 @@ const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = React.memo((
     }
   }, [isDragging, isDragMode]);
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition: isDragging ? 'none' : transition || 'transform 200ms cubic-bezier(0.25, 0.1, 0.25, 1)',
-    opacity: isDragging ? 0.9 : 1,
+    opacity: isDragging ? 0.9 : isRemoving ? 0 : 1,
     zIndex: isDragging ? 1000 : 1,
+    transitionProperty: 'opacity, transform',
+    transitionDuration: isRemoving ? '0.3s' : '0.2s',
+    pointerEvents: isRemoving ? 'none' : 'auto',
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -72,8 +79,24 @@ const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = React.memo((
       e.stopPropagation();
       return;
     }
+    
+    // Vérifier si l'élément cliqué est le bouton de favori ou un de ses enfants
+    const favoriteButton = document.getElementById(`favorite-button-${activity.id}`);
+    if (favoriteButton && favoriteButton.contains(e.target as Node)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    
     // Navigation normale
     window.location.href = `/activities/${activity.id}`;
+  };
+
+  const handleFavoriteChange = (isFavorite: boolean) => {
+    if (!isFavorite) {
+      // L'utilisateur retire des favoris
+      onRemoveStart?.(activity.id);
+    }
   };
 
   return (
@@ -199,11 +222,16 @@ const DraggableFavoriteCard: React.FC<DraggableFavoriteCardProps> = React.memo((
               right: 16,
               zIndex: 2,
             }}
-            onClick={(e) => e.preventDefault()} // Empêche la navigation lors du clic sur le bouton
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation(); // Empêche la propagation du clic vers la carte parente
+            }}
           >
             <FavoriteButton
               activityId={activity.id}
               size="sm"
+              onFavoriteChange={handleFavoriteChange}
+              isRemoving={isRemoving}
             />
           </Box>
         </Card>
@@ -217,6 +245,7 @@ export const FavoritesList: React.FC = () => {
   const { favorites, isLoading, refetch } = useFavoritesCache();
   const { classes } = useGlobalStyles();
   const [localFavorites, setLocalFavorites] = useState(favorites);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   // Mettre à jour l'état local quand les favoris changent (seulement si nécessaire)
   const lastFavoriteIds = React.useRef<string>('');
@@ -229,7 +258,13 @@ export const FavoritesList: React.FC = () => {
       setLocalFavorites(favorites);
       lastFavoriteIds.current = favoriteIds;
     }
-  }, [favorites]);
+    
+    // Retirer les éléments marqués comme supprimés qui ne sont plus dans les favoris
+    if (removingId && !favorites.some(f => f.id === removingId)) {
+      setLocalFavorites(prev => prev.filter(fav => fav.id !== removingId));
+      setRemovingId(null);
+    }
+  }, [favorites, removingId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -366,6 +401,8 @@ export const FavoritesList: React.FC = () => {
                 key={activity.id}
                 activity={activity}
                 classes={classes}
+                isRemoving={removingId === activity.id}
+                onRemoveStart={(id) => setRemovingId(id)}
               />
             ))}
           </SimpleGrid>

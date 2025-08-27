@@ -15,6 +15,8 @@ interface FavoriteButtonProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   /** Callback appelé lors du changement de statut favori */
   onFavoriteChange?: (isFavorite: boolean) => void;
+  /** Indique si l'activité est en cours de suppression */
+  isRemoving?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   activityId,
   size = 'md',
   onFavoriteChange,
+  isRemoving = false,
 }) => {
   const { isFavorite, isLoading: favoriteLoading, refetch } = useFavoriteState(activityId);
 
@@ -61,6 +64,8 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
    */
   const handleToggleFavorite = async () => {
     if (isFavorite) {
+      // Notifier le parent que cette activité est en cours de suppression
+      onFavoriteChange?.(false);
       await removeFromFavorites({ variables: { activityId } });
     } else {
       await addToFavorites({ variables: { activityId } });
@@ -78,11 +83,16 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       openDelay={500}
     >
       <ActionIcon
+        id={`favorite-button-${activityId}`}
         size={size}
         variant="subtle"
         color={isFavorite ? 'red' : 'gray'}
         loading={isLoading}
-        onClick={handleToggleFavorite}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleToggleFavorite();
+        }}
         sx={{
           transition: 'all 0.2s ease',
           '&:hover': {
