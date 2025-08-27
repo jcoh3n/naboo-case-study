@@ -1,74 +1,129 @@
-Here’s what we’re ideally looking for:
-Code review: have a look through the existing codebase, highlight good practices and suggest areas for improvement.
-“Favourites” feature: allow a user to add an activity to their favourites, view them on their profile, and reorder them.
-“Debug” mode: display the creation date of activities on the cards, but only if the logged-in user is an admin.
+# Naboo Case Study - Technical Project
 
-Voici le récapitulatif complet de tout ce qu'il faut faire selon les demandes du sujet :
+Here's what we're ideally looking for:
+- Code review: have a look through the existing codebase, highlight good practices and suggest areas for improvement.
+- "Favorites" feature: allow a user to add an activity to their favorites, view them on their profile, and reorder them.
+- "Debug" mode: display the creation date of activities on the cards, but only if the logged-in user is an admin.
 
-🎯 3 Objectifs Principaux
+---
 
-- [x] Code Review → Identifier et corriger les problèmes existants
-- [ ] Système de Favoris → Permettre d'ajouter, voir et réorganiser les favoris
-- [ ] Mode Debug Admin → Afficher les dates de création pour les admins
+## 🎯 3 Main Objectives
 
+- [x] **Code Review** → Identify and fix existing problems
+- [x] **Favorites System** → Allow adding, viewing and reordering favorites
+- [x] **Admin Debug Mode** → Display creation dates for admins
 
+---
 
-🚨 CORRECTIONS CRITIQUES (À faire en PREMIER)
-- [x] Bug Authentification JWT (BLOQUANT)
-	- Le frontend utilise localStorage mais Apollo Client cherche des cookies
-	- Impact : L'authentification ne fonctionne probablement pas
+## 🚨 CRITICAL FIXES (Resolved)
 
-- [x] Schéma User Incomplet
-	- Champs debugModeEnabled et favoriteActivities manquants
-	- Impact : Erreurs runtime quand le code essaie d'utiliser ces champs
+### [x] JWT Authentication Bug (BLOCKING)
+- **Issue**: Frontend used localStorage but Apollo Client looked for cookies.
+- **Impact**: Authentication probably wasn't working.
+- **Solution**: Implemented consistent JWT authentication between frontend and backend.
+- **Documentation**: See `back-end/src/auth/` and `front-end/src/contexts/authContext.tsx`.
 
-- [x] Types TypeScript Incohérents
-	- Interface ContextWithJWTPayload incomplète
-	- Impact : Erreurs de compilation TypeScript
+---
 
-- [x] Configuration des variables d'environnement pour les tests
-	- Les variables JWT et MongoDB pour les tests sont maintenant chargées via le fichier `.env.test` (et non plus codées en dur dans le module de test). Pensez à créer/modifier ce fichier pour vos environnements de test.
+### [x] Incomplete User Schema
+- **Issue**: Missing `debugModeEnabled` and `favoriteActivities` fields.
+- **Impact**: Runtime errors when code tried to use these fields.
+- **Solution**: Added fields in `back-end/src/user/user.schema.ts` with GraphQL decorators.
+- **Documentation**: See [ADMIN_DEBUG_README.md](./ADMIN_DEBUG_README.md) and [FAVORITES_README.md](./FAVORITES_README.md).
 
-🎯 NOUVELLES FONCTIONNALITÉS À IMPLÉMENTER
-Système de Favoris Complet
-Backend :
+---
 
-4 nouvelles mutations GraphQL (add/remove/reorder/get favoris)
-Service FavoritesService avec logique métier
-Champs dans le schéma User pour stocker les favoris
+### [x] Inconsistent TypeScript Types
+- **Issue**: `ContextWithJWTPayload` interface was incomplete.
+- **Impact**: TypeScript compilation errors.
+- **Solution**: Updated interface in `back-end/src/auth/types/context.ts`.
+- **Documentation**: See typing files in `back-end/src/auth/types/`.
 
-Frontend :
+---
 
-Bouton "♥" sur chaque carte d'activité
-Section "Mes Favoris" dans le profil utilisateur
-Drag & drop pour réorganiser les favoris
-Queries/mutations GraphQL correspondantes
+### [x] Environment Variables Configuration for Tests
+- **Issue**: JWT and MongoDB variables were hardcoded in test modules.
+- **Impact**: Difficult to manage different environments.
+- **Solution**: Migration to `.env.test`. Variables are now loaded via this file.
+- **Documentation**: See `back-end/.env.test` and `back-end/test/jest-e2e.json`.
 
-Mode Debug Admin
-Backend :
+---
 
-Logique conditionnelle pour exposer createdAt
-Seulement si user.role === 'admin' ET user.debugModeEnabled
-Mutation pour toggle le mode debug
+## 🎯 NEW FEATURES IMPLEMENTED
 
-Frontend :
+### ✅ Complete Favorites System
 
-Toggle switch pour les admins (activer/désactiver debug)
-Affichage des dates de création sur les cartes d'activités
-Visible uniquement en mode debug activé
+#### Backend:
+- [x] 4 new GraphQL mutations (`addToFavorites`, `removeFromFavorites`, `reorderFavorites`, `getFavorites`)
+- [x] `FavoritesService` with business logic
+- [x] `favoriteActivities` field in User schema
 
-📋 ORDRE DE DÉVELOPPEMENT
+#### Frontend:
+- [x] "♥" button on each activity card
+- [x] "My Favorites" section in user profile
+- [x] Drag & drop to reorder favorites
+- [x] Corresponding GraphQL queries/mutations
 
-Phase 1 : Corrections critiques (sinon rien ne marche)
-Phase 2 : Système de favoris (plus complexe)
-Phase 3 : Mode debug admin (plus simple)
-Phase 4 : Tests et optimisations
+📚 **Technical documentation**: [FAVORITES_README.md](./FAVORITES_README.md)
 
-💻 Estimation de Travail
+---
 
-Corrections critiques : ~4h
-Système favoris : ~8h (backend + frontend + UI)
-Mode debug admin : ~3h
-Tests & finition : ~3h
+### ✅ Admin Debug Mode
 
-Total estimé : ~18h de développement
+#### Backend:
+- [x] Conditional logic to expose `createdAt`
+  - Only if `user.role === 'admin'` AND `user.debugModeEnabled === true`
+- [x] `toggleDebugMode(enabled: Boolean!)` mutation to enable/disable mode
+
+#### Frontend:
+- [x] Toggle switch for admins (enable/disable debug)
+- [x] Display creation dates on activity cards
+- [x] Visible only when debug mode is enabled
+
+📚 **Technical documentation**: [ADMIN_DEBUG_README.md](./ADMIN_DEBUG_README.md)
+
+---
+
+## 📋 DEVELOPMENT ORDER FOLLOWED
+
+1. ✅ **Phase 1**: Critical fixes (otherwise nothing works)
+2. ✅ **Phase 2**: Favorites system (more complex)
+3. ✅ **Phase 3**: Debug admin mode (simpler)
+4. ✅ **Phase 4**: Tests and optimizations
+
+---
+
+## 🧪 Tests
+
+- ✅ Backend unit tests (`npm run test`)
+- ✅ Frontend build successful (`npm run build`)
+- ✅ Manual functional tests (add/remove/reorder favorites, debug mode)
+
+---
+
+## 🚀 Running the Project
+
+### Backend
+```bash
+cd back-end
+npm install
+npm run start:dev
+```
+
+### Frontend
+```bash
+cd front-end
+npm install
+npm run dev
+```
+
+👉 **Default Accounts**:
+- **User**: `user1@test.fr` / `user1`
+- **Admin**: `admin@test.fr` / `admin123`
+
+---
+
+## 📚 Technical Documentation
+
+- [FAVORITES_README.md](./FAVORITES_README.md) - Complete documentation of the favorites system
+- [ADMIN_DEBUG_README.md](./ADMIN_DEBUG_README.md) - Complete documentation of the debug admin mode
