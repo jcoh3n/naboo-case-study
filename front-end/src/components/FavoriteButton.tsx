@@ -6,12 +6,28 @@ import { addToFavoritesMutation, removeFromFavoritesMutation } from '../graphql/
 import { useFavoriteState } from '../hooks/useFavoriteState';
 import { useSnackbar } from '../hooks/useSnackbar';
 
+/**
+ * Props du composant FavoriteButton
+ */
 interface FavoriteButtonProps {
+  /** ID de l'activité à marquer comme favorite */
   activityId: string;
+  /** Taille du bouton (défaut: 'md') */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Callback appelé lors du changement de statut favori */
   onFavoriteChange?: (isFavorite: boolean) => void;
 }
 
+/**
+ * Composant bouton cœur pour gérer les favoris
+ * 
+ * Fonctionnalités :
+ * - Toggle favori avec feedback visuel instantané
+ * - États de chargement avec spinner
+ * - Animations hover et transitions fluides
+ * - Notifications success/error automatiques
+ * - Synchronisation avec le cache global
+ */
 export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   activityId,
   size = 'md',
@@ -20,28 +36,34 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   const { success, error: showError } = useSnackbar();
   const { isFavorite, isLoading: favoriteLoading, refetch } = useFavoriteState(activityId);
 
+  // Mutation pour ajouter aux favoris avec gestion des callbacks
   const [addToFavorites, { loading: addingLoading }] = useMutation(addToFavoritesMutation, {
     onCompleted: () => {
       success('Activité ajoutée aux favoris');
-      refetch();
-      onFavoriteChange?.(true);
+      refetch(); // Re-synchroniser le cache
+      onFavoriteChange?.(true); // Notifier le parent si callback fourni
     },
     onError: (error) => {
       showError(`Erreur: ${error.message}`);
     },
   });
 
+  // Mutation pour retirer des favoris avec gestion des callbacks
   const [removeFromFavorites, { loading: removingLoading }] = useMutation(removeFromFavoritesMutation, {
     onCompleted: () => {
       success('Activité retirée des favoris');
-      refetch();
-      onFavoriteChange?.(false);
+      refetch(); // Re-synchroniser le cache
+      onFavoriteChange?.(false); // Notifier le parent si callback fourni
     },
     onError: (error) => {
       showError(`Erreur: ${error.message}`);
     },
   });
 
+  /**
+   * Gestionnaire du toggle favori
+   * Détermine l'action à effectuer selon l'état actuel
+   */
   const handleToggleFavorite = async () => {
     if (isFavorite) {
       await removeFromFavorites({ variables: { activityId } });
@@ -50,6 +72,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     }
   };
 
+  // État de chargement global (toute opération en cours)
   const isLoading = favoriteLoading || addingLoading || removingLoading;
 
   return (

@@ -1,6 +1,19 @@
 import { gql } from '@apollo/client';
 
-// Mutations
+/**
+ * Opérations GraphQL pour la gestion des favoris
+ * 
+ * Ce fichier contient toutes les mutations et queries nécessaires
+ * pour interagir avec l'API des favoris. Les fragments sont utilisés
+ * pour éviter la duplication et assurer la cohérence des données.
+ */
+
+// === MUTATIONS ===
+
+/**
+ * Mutation pour ajouter une activité aux favoris
+ * Retourne l'utilisateur mis à jour avec ses favoris complets
+ */
 export const addToFavoritesMutation = gql`
   mutation AddToFavorites($activityId: String!) {
     addToFavorites(activityId: $activityId) {
@@ -22,6 +35,10 @@ export const addToFavoritesMutation = gql`
   }
 `;
 
+/**
+ * Mutation pour retirer une activité des favoris
+ * Retourne l'utilisateur mis à jour avec ses favoris complets
+ */
 export const removeFromFavoritesMutation = gql`
   mutation RemoveFromFavorites($activityId: String!) {
     removeFromFavorites(activityId: $activityId) {
@@ -43,6 +60,10 @@ export const removeFromFavoritesMutation = gql`
   }
 `;
 
+/**
+ * Mutation pour réorganiser l'ordre des favoris (drag & drop)
+ * Prend un tableau ordonné d'IDs et met à jour l'ordre en base
+ */
 export const reorderFavoritesMutation = gql`
   mutation ReorderFavorites($activityIds: [String!]!) {
     reorderFavorites(activityIds: $activityIds) {
@@ -64,7 +85,12 @@ export const reorderFavoritesMutation = gql`
   }
 `;
 
-// Queries
+// === QUERIES ===
+
+/**
+ * Query pour récupérer tous les favoris de l'utilisateur connecté
+ * Retourne la liste complète des activités avec leurs données
+ */
 export const getFavoritesQuery = gql`
   query GetFavorites {
     getFavorites {
@@ -83,6 +109,10 @@ export const getFavoritesQuery = gql`
   }
 `;
 
+/**
+ * Query pour vérifier si une activité spécifique est favorite
+ * Utile pour des vérifications ponctuelles sans charger tous les favoris
+ */
 export const isFavoriteQuery = gql`
   query IsFavorite($activityId: String!) {
     isFavorite(activityId: $activityId)
